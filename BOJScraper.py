@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from selenium import webdriver
 
-class BOJScraoer(object):
+class BOJScraper(object):
     """
     日本銀行の時系列統計データ検索サイトからデータを自動取得するためのスクリプト
     http://www.stat-search.boj.or.jp/index.html
