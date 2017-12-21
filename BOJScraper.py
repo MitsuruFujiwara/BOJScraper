@@ -44,6 +44,12 @@ class BOJScraper(object):
         # 欠損値をnanに変換
         df = df.replace('NA    ', np.nan).replace('NA   ', np.nan)
 
+        # 欠損値を削除
+        df = df.dropna()
+
+        # データ型をfloatに指定
+        df = df.astype('float')
+
         return df
 
     def getData(self, fromYear, toYear):
