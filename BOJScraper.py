@@ -50,7 +50,32 @@ class BOJScraper(object):
         # データ型をfloatに指定
         df = df.astype('float')
 
+        # 日付のフラグを追加
+        dateFlag = self.getDateFlag(df.index)
+        df = pd.concat([df, dateFlag], axis=1)
+
         return df
+
+    def getDateFlag(slef, df_date):
+        # datetime型に変換
+        df_date = pd.to_datetime(df_date)
+
+        # 曜日のフラグを生成
+        day_dummy = pd.get_dummies(df_date.weekday_name, drop_first=True)
+
+        # 月のフラグを生成
+        month_dummy = pd.get_dummies(df_date.month, drop_first=True)
+
+        # ダミー変数を結合
+        dateFlag = dateflag = pd.concat([day_dummy, month_dummy], axis=1)
+
+        # 5-10日のフラグを生成
+        dateFlag['isFiveTen'] = (df_date.day % 5 == 0)*1 #TODO みなし5-10日の処理
+
+        # indexを日付に変更
+        dateFlag.index = df_date
+
+        return dateFlag
 
     def getData(self, fromYear, toYear):
         # driverを定義
