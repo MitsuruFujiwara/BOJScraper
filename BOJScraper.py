@@ -8,9 +8,10 @@ class BOJScraper(object):
     http://www.stat-search.boj.or.jp/index.html
     """
 
-    def __init__(self, driverpath='chromedriver'):
+    def __init__(self, driverpath='chromedriver', addDateFlag=False):
         self.url = 'http://www.stat-search.boj.or.jp/ssi/cgi-bin/famecgi2?cgi=$nme_a000&lstSelection=FM08'
         self.driverpath = driverpath
+        self.addDateFlag = addDateFlag
         self.datalist = [
         '東京市場　ドル・円　スポット　9時時点',
         '東京市場　ドル・円　スポット　最高値',
@@ -51,8 +52,9 @@ class BOJScraper(object):
         df = df.astype('float')
 
         # 日付のフラグを追加
-        dateFlag = self.getDateFlag(df.index)
-        df = pd.concat([df, dateFlag], axis=1)
+        if self.addDateFlag:
+            dateFlag = self.getDateFlag(df.index)
+            df = pd.concat([df, dateFlag], axis=1)
 
         return df
 
