@@ -61,20 +61,24 @@ class BOJScraper(object):
         return df
 
     def getDateFlag(slef, df_date):
-        # datetime型に変換
+
+        # datetime型の日付データを取得
         df_date = pd.to_datetime(df_date)
 
-        # 曜日のフラグを生成
-        day_dummy = pd.get_dummies(df_date.weekday_name, drop_first=True)
+        # 日付のフラグ
+        _day = pd.get_dummies(df_date.day, drop_first=True, prefix='day_').astype(int)
 
-        # 月のフラグを生成
-        month_dummy = pd.get_dummies(df_date.month, drop_first=True)
+        # 月のフラグ
+        _month = pd.get_dummies(df_date.month, drop_first=True, prefix='month_').astype(int)
+
+        # 曜日のフラグ
+        _weekday = pd.get_dummies(df_date.weekday, drop_first=True, prefix='weekday_').astype(int)
+
+        # 年の何週目かのフラグ
+        _weekofyear = pd.get_dummies(df_date.weekofyear, drop_first=True, prefix='weekofyear_').astype(int) #年の何週目か
 
         # ダミー変数を結合
-        dateFlag = dateflag = pd.concat([day_dummy, month_dummy], axis=1)
-
-        # 5-10日のフラグを生成
-        dateFlag['isFiveTen'] = (df_date.day % 5 == 0)*1 #TODO みなし5-10日の処理
+        dateFlag = pd.concat([_day, _month, _weekday, _weekofyear],axis=1)
 
         # indexを日付に変更
         dateFlag.index = df_date
