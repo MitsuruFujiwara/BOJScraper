@@ -8,18 +8,20 @@ class BOJScraper(object):
     http://www.stat-search.boj.or.jp/index.html
     """
 
-    def __init__(self, driverpath='chromedriver', addDateFlag=False):
+    def __init__(self, driverpath='chromedriver', currency='USD', addDateFlag=False):
         self.url = 'http://www.stat-search.boj.or.jp/ssi/cgi-bin/famecgi2?cgi=$nme_a000&lstSelection=FM08'
         self.driverpath = driverpath
         self.addDateFlag = addDateFlag
-        self.datalist = [
+        self.currency = currency # 'USD' or 'EUR'
+        self.datalistUSD = [
         '東京市場　ドル・円　スポット　9時時点',
         '東京市場　ドル・円　スポット　最高値',
         '東京市場　ドル・円　スポット　最安値',
         '東京市場　ドル・円　スポット　17時時点',
         '東京市場　ドル・円　スポット　中心相場',
         '東京市場　ドル・円　スポット出来高',
-        '東京市場　ドル・円　スワップ出来高',
+        '東京市場　ドル・円　スワップ出来高']
+        self.datalistEUR = [
         '東京市場　ユーロ・ドル　スポット　9時時点',
         '東京市場　ユーロ・ドル　スポット　最高値',
         '東京市場　ユーロ・ドル　スポット　最安値',
@@ -27,7 +29,7 @@ class BOJScraper(object):
         '東京市場　ユーロ・ドル　スポット出来高',
         '東京市場　ユーロ・ドル　スワップ出来高']
 
-    def reshapeData(self, url_csv):
+    def reshapeData(self, url_csv, datalist):
         # urlからデータをロード
         df = pd.read_csv(url_csv)
 
@@ -35,7 +37,7 @@ class BOJScraper(object):
         df = df[1:]
 
         # カラム名を変更
-        col = ['date'] + self.datalist
+        col = ['date'] + datalist
         df.columns = col
 
         # インデックスにdateを指定
@@ -80,6 +82,13 @@ class BOJScraper(object):
         return dateFlag
 
     def getData(self, fromYear, toYear):
+        if self.currency=='USD':
+            datalist=self.datalistUSD
+            tmp_i = 0
+        elif self.currency=='EUR':
+            datalist=self.datalistEUR
+            tmp_i = 7
+
         # driverを定義
         driver = webdriver.Chrome(self.driverpath)
 
@@ -93,7 +102,8 @@ class BOJScraper(object):
         driver.find_element_by_xpath('/html/body/div[2]/div/ul[2]/li[1]/div[1]/div[1]/div[2]/input').click()
 
         # データ項目のチェックボックスにチェックを入れる
-        for i, t in enumerate(self.datalist):
+        for i, t in enumerate(datalist):
+            i += tmp_i
             _i = str(i+1)
             path = '//*[@id="menuSearchDataCodeList"]/tbody/tr[' + _i +']/td/label'
             driver.find_element_by_xpath(path).click()
@@ -123,7 +133,7 @@ class BOJScraper(object):
         url_csv = driver.find_element_by_css_selector('body > div.contents > div > div > center > div > table > tbody > tr > td > a').get_attribute('href')
 
         # データを加工
-        df = self.reshapeData(url_csv)
+        df = self.reshapeData(url_csv, datalist)
 
         # driverを閉じる
         driver.quit()
