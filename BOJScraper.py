@@ -31,7 +31,7 @@ class BOJScraper(object):
 
     def reshapeData(self, url_csv, datalist):
         # urlからデータをロード
-        df = pd.read_csv(url_csv)
+        df = pd.read_csv(url_csv, encoding="shift-jis")
 
         # 不要な行を削除
         df = df[1:]
